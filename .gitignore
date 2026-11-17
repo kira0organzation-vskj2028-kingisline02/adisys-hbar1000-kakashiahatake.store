@@ -1,0 +1,22 @@
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Runtime data & logs
+*.log
+*.pid
+
+# Node / PM2 logs
+.pm2/
+
+# OS generated files
+.DS_Store
+Thumbs.db

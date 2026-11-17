@@ -1,0 +1,1698 @@
+[
+  {
+    "name": "addPadIcon",
+    "line": 4050,
+    "end_line": 4061,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "reportNowLocalInputValue",
+    "line": 4069,
+    "end_line": 4073,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "pad",
+    "line": 4071,
+    "end_line": 4072,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "reportFormatDate",
+    "line": 4074,
+    "end_line": 4078,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "reportGetRecords",
+    "line": 4079,
+    "end_line": 4092,
+    "classification": "MOVE to server",
+    "reason": "Database querying, filtering by date/recipe/operator, and pagination belong in server SQLite query layer",
+    "endpoint": "GET /api/report?start=...&end=...&recipe=...&operator=..."
+  },
+  {
+    "name": "toggleReportDateSort",
+    "line": 4097,
+    "end_line": 4110,
+    "classification": "KEEP in UI",
+    "reason": "UI sort indicators and client view sorting order of already retrieved report rows",
+    "endpoint": "None (UI view state)"
+  },
+  {
+    "name": "updateReportSortUI",
+    "line": 4113,
+    "end_line": 4130,
+    "classification": "KEEP in UI",
+    "reason": "UI sort indicators and client view sorting order of already retrieved report rows",
+    "endpoint": "None (UI view state)"
+  },
+  {
+    "name": "populateReportDropdowns",
+    "line": 4133,
+    "end_line": 4171,
+    "classification": "SPLIT",
+    "reason": "Populating select elements is UI, but source lists of recipes and operators must come from server database",
+    "endpoint": "GET /api/recipes, GET /api/operators"
+  },
+  {
+    "name": "reportFilteredRecords",
+    "line": 4174,
+    "end_line": 4213,
+    "classification": "MOVE to server",
+    "reason": "Database querying, filtering by date/recipe/operator, and pagination belong in server SQLite query layer",
+    "endpoint": "GET /api/report?start=...&end=...&recipe=...&operator=..."
+  },
+  {
+    "name": "updateReportScreen",
+    "line": 4214,
+    "end_line": 4258,
+    "classification": "SPLIT",
+    "reason": "Rendering HTML report rows/tables stays in UI, but report aggregation, counts, percentages and banding calculations move to server",
+    "endpoint": "GET /api/report"
+  },
+  {
+    "name": "set",
+    "line": 4226,
+    "end_line": 4226,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "reportEscape",
+    "line": 4259,
+    "end_line": 4259,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "reportCsv",
+    "line": 4260,
+    "end_line": 4265,
+    "classification": "SPLIT",
+    "reason": "File trigger/download in browser, but pre-calculated tabular summary and aggregations supplied by server",
+    "endpoint": "GET /api/report"
+  },
+  {
+    "name": "esc",
+    "line": 4261,
+    "end_line": 4261,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "downloadReportBlob",
+    "line": 4266,
+    "end_line": 4266,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "urlToDataUrl",
+    "line": 4269,
+    "end_line": 4287,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "getReportImages",
+    "line": 4289,
+    "end_line": 4317,
+    "classification": "KEEP in UI",
+    "reason": "Helper utilities for report DOM formatting, blob download, and local time string conversion",
+    "endpoint": "None (Client helper)"
+  },
+  {
+    "name": "exportReportXls",
+    "line": 4319,
+    "end_line": 4719,
+    "classification": "SPLIT",
+    "reason": "File trigger/download in browser, but pre-calculated tabular summary and aggregations supplied by server",
+    "endpoint": "GET /api/report"
+  },
+  {
+    "name": "exportReportPdf",
+    "line": 4721,
+    "end_line": 5138,
+    "classification": "SPLIT",
+    "reason": "File trigger/download in browser, but pre-calculated tabular summary and aggregations supplied by server",
+    "endpoint": "GET /api/report"
+  },
+  {
+    "name": "bindReport",
+    "line": 5140,
+    "end_line": 5208,
+    "classification": "KEEP in UI",
+    "reason": "Event listeners for opening and closing the report screen modal",
+    "endpoint": "None (DOM events)"
+  },
+  {
+    "name": "open",
+    "line": 5142,
+    "end_line": 5148,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "addBtnAction",
+    "line": 5149,
+    "end_line": 5154,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "triggerPicker",
+    "line": 5190,
+    "end_line": 5196,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "startClock",
+    "line": 5211,
+    "end_line": 5227,
+    "classification": "KEEP in UI",
+    "reason": "Visual topbar clock display formatting (local time hours:minutes:seconds)",
+    "endpoint": "None (Client visual clock)"
+  },
+  {
+    "name": "update",
+    "line": 5216,
+    "end_line": 5224,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "returnToHomeScreen",
+    "line": 5232,
+    "end_line": 5244,
+    "classification": "KEEP in UI",
+    "reason": "Screen switching between #screen-stn, #screen-recipe, #screen-cam, etc.",
+    "endpoint": "None (DOM view routing)"
+  },
+  {
+    "name": "bindNavigation",
+    "line": 5248,
+    "end_line": 5331,
+    "classification": "KEEP in UI",
+    "reason": "Screen switching between #screen-stn, #screen-recipe, #screen-cam, etc.",
+    "endpoint": "None (DOM view routing)"
+  },
+  {
+    "name": "openRecipeCalibrationForm",
+    "line": 5273,
+    "end_line": 5283,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "initRuler99Ticks",
+    "line": 5334,
+    "end_line": 5395,
+    "classification": "KEEP in UI",
+    "reason": "DOM creation of 99 ticks on visual ruler track",
+    "endpoint": "None (Client DOM rendering)"
+  },
+  {
+    "name": "updateRepAndRulerDisplay",
+    "line": 5400,
+    "end_line": 5496,
+    "classification": "SPLIT",
+    "reason": "Ruler needle positioning is visual UI, but error calculation and repeat length actual validation move to server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "updateDynamicCounterBands",
+    "line": 5502,
+    "end_line": 5581,
+    "classification": "SPLIT",
+    "reason": "Renders counter badge DOM text, but banding partition rules, bin counts and totals move to server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "fbarxPost",
+    "line": 5587,
+    "end_line": 5595,
+    "classification": "MOVE to server",
+    "reason": "Replace direct hardware post endpoints with unified action dispatcher POST /api/action",
+    "endpoint": "POST /api/action"
+  },
+  {
+    "name": "setFbarxBanner",
+    "line": 5596,
+    "end_line": 5608,
+    "classification": "KEEP in UI",
+    "reason": "Renders top banner color and text depending on server state ('OK', 'DISCONNECTED', 'SIMULATED')",
+    "endpoint": "None (Client DOM rendering)"
+  },
+  {
+    "name": "pollFBarXState",
+    "line": 5610,
+    "end_line": 5703,
+    "classification": "SPLIT",
+    "reason": "Single UI periodic state poll (200-500ms) that renders returned state. All decision-making and hardware interrogation stay in server.py",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "updateMarkWindowWithError",
+    "line": 5707,
+    "end_line": 5737,
+    "classification": "SPLIT",
+    "reason": "Renders mark window box UI, but mark window error limits and calculations move to server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "initSegmentTracks",
+    "line": 5741,
+    "end_line": 5751,
+    "classification": "KEEP in UI",
+    "reason": "Visual bar graph / LED segment rendering and decimal string formatting",
+    "endpoint": "None (Client rendering)"
+  },
+  {
+    "name": "updateSegmentTrack",
+    "line": 5753,
+    "end_line": 5761,
+    "classification": "KEEP in UI",
+    "reason": "Visual bar graph / LED segment rendering and decimal string formatting",
+    "endpoint": "None (Client rendering)"
+  },
+  {
+    "name": "normalizeOutput",
+    "line": 5764,
+    "end_line": 5769,
+    "classification": "KEEP in UI",
+    "reason": "Visual bar graph / LED segment rendering and decimal string formatting",
+    "endpoint": "None (Client rendering)"
+  },
+  {
+    "name": "formatOutput",
+    "line": 5771,
+    "end_line": 5773,
+    "classification": "KEEP in UI",
+    "reason": "Visual bar graph / LED segment rendering and decimal string formatting",
+    "endpoint": "None (Client rendering)"
+  },
+  {
+    "name": "bindModeButtons",
+    "line": 5777,
+    "end_line": 5821,
+    "classification": "SPLIT",
+    "reason": "Click handlers stay in UI, but mode change validation and sending action move to POST /api/action",
+    "endpoint": "POST /api/action { action: 'set_mode', station, mode }"
+  },
+  {
+    "name": "updateCameraForStationModes",
+    "line": 5826,
+    "end_line": 5931,
+    "classification": "KEEP in UI",
+    "reason": "Toggles UI button disabled/active classes and camera badge based on state received from server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "applyModeInteractionState",
+    "line": 5935,
+    "end_line": 6030,
+    "classification": "KEEP in UI",
+    "reason": "Toggles UI button disabled/active classes and camera badge based on state received from server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "setEnabled",
+    "line": 5936,
+    "end_line": 5941,
+    "classification": "KEEP in UI",
+    "reason": "DOM utility helpers for enabling/disabling interactive button groups",
+    "endpoint": "None (DOM utility)"
+  },
+  {
+    "name": "setGroup",
+    "line": 5942,
+    "end_line": 5969,
+    "classification": "KEEP in UI",
+    "reason": "DOM utility helpers for enabling/disabling interactive button groups",
+    "endpoint": "None (DOM utility)"
+  },
+  {
+    "name": "bindSteppers",
+    "line": 6033,
+    "end_line": 6061,
+    "classification": "SPLIT",
+    "reason": "UI click handlers for +/- steppers stay in UI, but clamp ranges and output stepping action move to server",
+    "endpoint": "POST /api/action { action: 'step_output', station, direction }"
+  },
+  {
+    "name": "setupStep",
+    "line": 6034,
+    "end_line": 6057,
+    "classification": "SPLIT",
+    "reason": "UI click handlers for +/- steppers stay in UI, but clamp ranges and output stepping action move to server",
+    "endpoint": "POST /api/action { action: 'step_output', station, direction }"
+  },
+  {
+    "name": "stepDown",
+    "line": 6040,
+    "end_line": 6045,
+    "classification": "SPLIT",
+    "reason": "UI click handlers for +/- steppers stay in UI, but clamp ranges and output stepping action move to server",
+    "endpoint": "POST /api/action { action: 'step_output', station, direction }"
+  },
+  {
+    "name": "stepUp",
+    "line": 6047,
+    "end_line": 6052,
+    "classification": "SPLIT",
+    "reason": "UI click handlers for +/- steppers stay in UI, but clamp ranges and output stepping action move to server",
+    "endpoint": "POST /api/action { action: 'step_output', station, direction }"
+  },
+  {
+    "name": "bindUnitToggle",
+    "line": 6064,
+    "end_line": 6081,
+    "classification": "SPLIT",
+    "reason": "Click handler in UI, but unit selection preference persists on server machine state",
+    "endpoint": "POST /api/action { action: 'set_unit', unit: 'KG'|'N' }"
+  },
+  {
+    "name": "syncBrakeTypeUI",
+    "line": 6083,
+    "end_line": 6094,
+    "classification": "SPLIT",
+    "reason": "Radio/button visual sync in UI, but brake type configuration persists on server",
+    "endpoint": "POST /api/action { action: 'set_brake_type' }"
+  },
+  {
+    "name": "bindBrakeTypeSelectors",
+    "line": 6095,
+    "end_line": 6111,
+    "classification": "SPLIT",
+    "reason": "Radio/button visual sync in UI, but brake type configuration persists on server",
+    "endpoint": "POST /api/action { action: 'set_brake_type' }"
+  },
+  {
+    "name": "getStn1ControlValues",
+    "line": 6116,
+    "end_line": 6119,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "initStn1ControlDraft",
+    "line": 6120,
+    "end_line": 6122,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "discardStn1ControlDraft",
+    "line": 6123,
+    "end_line": 6125,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "getStn1LoadcellValues",
+    "line": 6126,
+    "end_line": 6129,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "initStn1LoadcellDraft",
+    "line": 6130,
+    "end_line": 6132,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "discardStn1LoadcellDraft",
+    "line": 6133,
+    "end_line": 6135,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "bindStn1Calibration",
+    "line": 6136,
+    "end_line": 6194,
+    "classification": "KEEP in UI",
+    "reason": "Event listeners for opening STN 1 calibration modal",
+    "endpoint": "None (DOM events)"
+  },
+  {
+    "name": "open",
+    "line": 6138,
+    "end_line": 6146,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "home",
+    "line": 6147,
+    "end_line": 6147,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "addAction",
+    "line": 6148,
+    "end_line": 6153,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openCalibrationPad",
+    "line": 6195,
+    "end_line": 6216,
+    "classification": "KEEP in UI",
+    "reason": "Opens visual on-screen numpad modal for user to type passcode",
+    "endpoint": "None (Modal UI trigger)"
+  },
+  {
+    "name": "updateCalibrationDisplay",
+    "line": 6217,
+    "end_line": 6232,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "handleCalibrationConfirm",
+    "line": 6233,
+    "end_line": 6272,
+    "classification": "MOVE to server",
+    "reason": "Passcode verification ('1111', '2222', '3333', '4444') and unlock permission must happen strictly on server",
+    "endpoint": "POST /api/login or POST /api/action { action: 'verify_passcode' }"
+  },
+  {
+    "name": "getStn2CalValues",
+    "line": 6276,
+    "end_line": 6296,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "initStn2CalDraft",
+    "line": 6297,
+    "end_line": 6297,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "discardStn2CalDraft",
+    "line": 6298,
+    "end_line": 6298,
+    "classification": "SPLIT",
+    "reason": "Draft value holding in UI while modal is open, but initial loading and final saving move to server SQLite",
+    "endpoint": "GET/POST /api/calibration"
+  },
+  {
+    "name": "updateStn2CalDisplay",
+    "line": 6299,
+    "end_line": 6323,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "setEl",
+    "line": 6301,
+    "end_line": 6301,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindStn2Calibration",
+    "line": 6324,
+    "end_line": 6352,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "open",
+    "line": 6326,
+    "end_line": 6326,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "home",
+    "line": 6327,
+    "end_line": 6327,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "doSave",
+    "line": 6332,
+    "end_line": 6344,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openStn2CalibrationPad",
+    "line": 6353,
+    "end_line": 6392,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openProtectedNumericPassword",
+    "line": 6393,
+    "end_line": 6406,
+    "classification": "KEEP in UI",
+    "reason": "Opens visual on-screen numpad modal for user to type passcode",
+    "endpoint": "None (Modal UI trigger)"
+  },
+  {
+    "name": "handleProtectedPasswordConfirm",
+    "line": 6407,
+    "end_line": 6416,
+    "classification": "MOVE to server",
+    "reason": "Passcode verification ('1111', '2222', '3333', '4444') and unlock permission must happen strictly on server",
+    "endpoint": "POST /api/login or POST /api/action { action: 'verify_passcode' }"
+  },
+  {
+    "name": "handleStn2CalibrationConfirm",
+    "line": 6418,
+    "end_line": 6465,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindCol1Actions",
+    "line": 6472,
+    "end_line": 6480,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "openMarkWindowNumpad",
+    "line": 6483,
+    "end_line": 6498,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindMarkWindowEdit",
+    "line": 6499,
+    "end_line": 6504,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "openRepeatLengthNumpad",
+    "line": 6507,
+    "end_line": 6522,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindRepeatLengthEdit",
+    "line": 6523,
+    "end_line": 6528,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "bindOutputNumpads",
+    "line": 6531,
+    "end_line": 6565,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "openOutputPad",
+    "line": 6534,
+    "end_line": 6547,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindNumpad",
+    "line": 6568,
+    "end_line": 6758,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "openStensionPad",
+    "line": 6575,
+    "end_line": 6589,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "startSimulatedSensors",
+    "line": 6761,
+    "end_line": 6784,
+    "classification": "MOVE to server",
+    "reason": "Generates virtual sensor telemetry and fake Modbus data in browser; belongs entirely in server.py (or modbus_slave_sim.py / FBARX_SIM=1)",
+    "endpoint": "POST /api/action { action: 'start_sim' } or server simulator thread"
+  },
+  {
+    "name": "applyOutputLevelStyle",
+    "line": 6787,
+    "end_line": 6794,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "refreshUI",
+    "line": 6796,
+    "end_line": 6958,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "syncModeClass",
+    "line": 6807,
+    "end_line": 6813,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "syncModeUnderline",
+    "line": 6819,
+    "end_line": 6831,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "setNeedle",
+    "line": 7201,
+    "end_line": 7207,
+    "classification": "KEEP in UI",
+    "reason": "SVG needle angle math and DOM attribute rotation based on server-provided ammeter numbers",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "updateNeedles",
+    "line": 7208,
+    "end_line": 7212,
+    "classification": "KEEP in UI",
+    "reason": "SVG needle angle math and DOM attribute rotation based on server-provided ammeter numbers",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "recipeClone",
+    "line": 7626,
+    "end_line": 7626,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "normalizeRecipe",
+    "line": 7627,
+    "end_line": 7627,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "recipeEsc",
+    "line": 7628,
+    "end_line": 7628,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "RecipeMatch",
+    "line": 7644,
+    "end_line": 7722,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "binOf",
+    "line": 7648,
+    "end_line": 7655,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "norm",
+    "line": 7656,
+    "end_line": 7656,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "signature",
+    "line": 7658,
+    "end_line": 7678,
+    "classification": "MOVE to server",
+    "reason": "Browser-side image feature extraction and matching. Image matching and comparison belong in vision.py on the server",
+    "endpoint": "POST /api/camera/compare, POST /api/camera/match"
+  },
+  {
+    "name": "signatures",
+    "line": 7680,
+    "end_line": 7680,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "inter",
+    "line": 7681,
+    "end_line": 7681,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "score",
+    "line": 7682,
+    "end_line": 7685,
+    "classification": "MOVE to server",
+    "reason": "Browser-side image feature extraction and matching. Image matching and comparison belong in vision.py on the server",
+    "endpoint": "POST /api/camera/compare, POST /api/camera/match"
+  },
+  {
+    "name": "rank",
+    "line": 7686,
+    "end_line": 7691,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "verdict",
+    "line": 7692,
+    "end_line": 7696,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "loadImage",
+    "line": 7697,
+    "end_line": 7697,
+    "classification": "MOVE to server",
+    "reason": "Browser-side image feature extraction and matching. Image matching and comparison belong in vision.py on the server",
+    "endpoint": "POST /api/camera/compare, POST /api/camera/match"
+  },
+  {
+    "name": "sigFromDataUrl",
+    "line": 7698,
+    "end_line": 7698,
+    "classification": "MOVE to server",
+    "reason": "Browser-side image feature extraction and matching. Image matching and comparison belong in vision.py on the server",
+    "endpoint": "POST /api/camera/compare, POST /api/camera/match"
+  },
+  {
+    "name": "downscale",
+    "line": 7699,
+    "end_line": 7703,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "readCode",
+    "line": 7705,
+    "end_line": 7711,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "parseCode",
+    "line": 7712,
+    "end_line": 7720,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "RecipeDB",
+    "line": 7725,
+    "end_line": 7840,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "uid",
+    "line": 7728,
+    "end_line": 7742,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "norm",
+    "line": 7729,
+    "end_line": 7742,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openIdb",
+    "line": 7731,
+    "end_line": 7742,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "idbReq",
+    "line": 7743,
+    "end_line": 7743,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "idbAll",
+    "line": 7744,
+    "end_line": 7748,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "idbTx",
+    "line": 7745,
+    "end_line": 7748,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "lsWrite",
+    "line": 7749,
+    "end_line": 7753,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "pack",
+    "line": 7750,
+    "end_line": 7750,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "persistRecipe",
+    "line": 7754,
+    "end_line": 7754,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "persistMeta",
+    "line": 7755,
+    "end_line": 7758,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "init",
+    "line": 7760,
+    "end_line": 7798,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "getRecipeCamImage",
+    "line": 7844,
+    "end_line": 7853,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateDbRefPlate",
+    "line": 7855,
+    "end_line": 7869,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "updateLiveCamForRecipe",
+    "line": 7871,
+    "end_line": 7903,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "calculateFrontBackDistance",
+    "line": 7905,
+    "end_line": 7920,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateDistanceDisplay",
+    "line": 7922,
+    "end_line": 7971,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "updateCalOverlayFields",
+    "line": 7977,
+    "end_line": 7988,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "setTxt",
+    "line": 7979,
+    "end_line": 7979,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "showToast",
+    "line": 7991,
+    "end_line": 8007,
+    "classification": "KEEP in UI",
+    "reason": "Visual overlay display, dismissal, and animations",
+    "endpoint": "None (Client UI)"
+  },
+  {
+    "name": "formatTime",
+    "line": 8020,
+    "end_line": 8026,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "pad",
+    "line": 8024,
+    "end_line": 8025,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "formatDateTime",
+    "line": 8028,
+    "end_line": 8034,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "pad",
+    "line": 8032,
+    "end_line": 8033,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateJobUI",
+    "line": 8036,
+    "end_line": 8089,
+    "classification": "SPLIT",
+    "reason": "Render job state received from server (UI), but state retention and job timer/counter calculations move to server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "startJob",
+    "line": 8091,
+    "end_line": 8134,
+    "classification": "MOVE to server",
+    "reason": "Job lifecycle, timestamps, database persistence and active job state belong on server, not in browser memory or localStorage",
+    "endpoint": "POST /api/action { action: 'start_job' | 'end_job' }"
+  },
+  {
+    "name": "endJob",
+    "line": 8136,
+    "end_line": 8220,
+    "classification": "MOVE to server",
+    "reason": "Job lifecycle, timestamps, database persistence and active job state belong on server, not in browser memory or localStorage",
+    "endpoint": "POST /api/action { action: 'start_job' | 'end_job' }"
+  },
+  {
+    "name": "restoreJobState",
+    "line": 8224,
+    "end_line": 8236,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "applyRecipeToHmi",
+    "line": 8238,
+    "end_line": 8291,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "AlphaPad",
+    "line": 8295,
+    "end_line": 8407,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "$",
+    "line": 8296,
+    "end_line": 8306,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "show",
+    "line": 8306,
+    "end_line": 8306,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "build",
+    "line": 8308,
+    "end_line": 8395,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "close",
+    "line": 8397,
+    "end_line": 8397,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "open",
+    "line": 8398,
+    "end_line": 8405,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "$rl",
+    "line": 8413,
+    "end_line": 8492,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "getBagArtInfo",
+    "line": 8415,
+    "end_line": 8492,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "recipeConfigMarkup",
+    "line": 8494,
+    "end_line": 8530,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "sg",
+    "line": 8496,
+    "end_line": 8508,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateRecipeLoadStatus",
+    "line": 8532,
+    "end_line": 8544,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "populateRecipeSelectors",
+    "line": 8546,
+    "end_line": 8576,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "getRecipeImageUrl",
+    "line": 8578,
+    "end_line": 8591,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "populateRecipeImages",
+    "line": 8593,
+    "end_line": 8626,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "selectLoad",
+    "line": 8628,
+    "end_line": 8678,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateRecipeLoadClock",
+    "line": 8680,
+    "end_line": 8692,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "showRecipeLoadScreen",
+    "line": 8694,
+    "end_line": 8729,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "stopLoadCamera",
+    "line": 8735,
+    "end_line": 8756,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "getCameraStream",
+    "line": 8758,
+    "end_line": 8762,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openRecipeCamera",
+    "line": 8764,
+    "end_line": 8820,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "runAutoCameraDetection",
+    "line": 8822,
+    "end_line": 8942,
+    "classification": "MOVE to server",
+    "reason": "Camera snapshot analysis and matching against recipe database belong in vision.py on server",
+    "endpoint": "POST /api/camera/match"
+  },
+  {
+    "name": "compareRecipeCamera",
+    "line": 8944,
+    "end_line": 8950,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "matchImageFile",
+    "line": 8952,
+    "end_line": 9009,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "armDelete",
+    "line": 9011,
+    "end_line": 9015,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "deleteSelectedRecipe",
+    "line": 9017,
+    "end_line": 9029,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "closeRecipeLoad",
+    "line": 9031,
+    "end_line": 9037,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "confirmRecipeLoad",
+    "line": 9039,
+    "end_line": 9097,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "$",
+    "line": 9104,
+    "end_line": 9108,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "clamp",
+    "line": 9105,
+    "end_line": 9108,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "status",
+    "line": 9108,
+    "end_line": 9108,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "populateCalRecipeSelect",
+    "line": 9110,
+    "end_line": 9121,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "begin",
+    "line": 9123,
+    "end_line": 9129,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "blank",
+    "line": 9131,
+    "end_line": 9162,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "sync",
+    "line": 9164,
+    "end_line": 9221,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "syncRecipeCalibrationUI",
+    "line": 9223,
+    "end_line": 9223,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "discardRecipeEdit",
+    "line": 9224,
+    "end_line": 9224,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openDeleteRecipeModal",
+    "line": 9226,
+    "end_line": 9246,
+    "classification": "KEEP in UI",
+    "reason": "Visual overlay display, dismissal, and animations",
+    "endpoint": "None (Client UI)"
+  },
+  {
+    "name": "performDeleteRecipe",
+    "line": 9248,
+    "end_line": 9287,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "cancelDeleteRecipeCalibration",
+    "line": 9291,
+    "end_line": 9294,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openRecipeNumpad",
+    "line": 9297,
+    "end_line": 9305,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "handleRecipeNumericConfirm",
+    "line": 9306,
+    "end_line": 9316,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "editText",
+    "line": 9318,
+    "end_line": 9321,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "setImageFromDataUrl",
+    "line": 9324,
+    "end_line": 9329,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "openCapture",
+    "line": 9337,
+    "end_line": 9387,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "closeCapture",
+    "line": 9389,
+    "end_line": 9403,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "shoot",
+    "line": 9405,
+    "end_line": 9452,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "retakeCapture",
+    "line": 9454,
+    "end_line": 9462,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "confirmCapture",
+    "line": 9464,
+    "end_line": 9525,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "save",
+    "line": 9527,
+    "end_line": 9598,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "goHomeFromRecipeCalibration",
+    "line": 9600,
+    "end_line": 9603,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindCal",
+    "line": 9605,
+    "end_line": 9896,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "showSingleFilePreview",
+    "line": 9650,
+    "end_line": 9676,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "showDualFilePreview",
+    "line": 9678,
+    "end_line": 9706,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "bindRecipeCalibration",
+    "line": 9906,
+    "end_line": 9942,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "handleStop",
+    "line": 9925,
+    "end_line": 9929,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "syncFromDatabase",
+    "line": 9945,
+    "end_line": 10027,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "fetchReportFromDB",
+    "line": 10030,
+    "end_line": 10055,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateZoneCountersDisplay",
+    "line": 10172,
+    "end_line": 10183,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "recordBagInBin",
+    "line": 10186,
+    "end_line": 10200,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "updateErrorPercentageDisplay",
+    "line": 10203,
+    "end_line": 10414,
+    "classification": "SPLIT",
+    "reason": "Renders color and text of error percentage pill, but percentage math and pass/fail thresholds move to server",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "_noMatchCount",
+    "line": 10252,
+    "end_line": 10256,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "getActiveRecipeCamSrc",
+    "line": 10417,
+    "end_line": 10431,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "haltMediaTracks",
+    "line": 10434,
+    "end_line": 10446,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "startLiveCamera",
+    "line": 10449,
+    "end_line": 10496,
+    "classification": "SPLIT",
+    "reason": "Opening inspection UI modal and attaching <img> source stays in UI; starting/stopping camera thread and processing frames stay on server",
+    "endpoint": "POST /api/action { action: 'camera_start' | 'camera_stop' }"
+  },
+  {
+    "name": "attachStreamImg",
+    "line": 10466,
+    "end_line": 10482,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "stopLiveCamera",
+    "line": 10498,
+    "end_line": 10583,
+    "classification": "SPLIT",
+    "reason": "Opening inspection UI modal and attaching <img> source stays in UI; starting/stopping camera thread and processing frames stay on server",
+    "endpoint": "POST /api/action { action: 'camera_start' | 'camera_stop' }"
+  },
+  {
+    "name": "startLiveComparisonLoop",
+    "line": 10585,
+    "end_line": 10633,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "setLiveCamError",
+    "line": 10635,
+    "end_line": 10771,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "fitCamStage",
+    "line": 10774,
+    "end_line": 10794,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "initLiveCamSwitcher",
+    "line": 10800,
+    "end_line": 11181,
+    "classification": "KEEP in UI",
+    "reason": "DOM initialization and event listener attachment",
+    "endpoint": "None (Client initialization)"
+  },
+  {
+    "name": "loadCameraCalibrationUi",
+    "line": 11046,
+    "end_line": 11075,
+    "classification": "KEEP in UI",
+    "reason": "Pure visual layout / DOM binding / event listener",
+    "endpoint": "None (Client visual/DOM)"
+  },
+  {
+    "name": "renderLiveAmmeter",
+    "line": 11231,
+    "end_line": 11259,
+    "classification": "KEEP in UI",
+    "reason": "SVG needle angle math and DOM attribute rotation based on server-provided ammeter numbers",
+    "endpoint": "GET /api/state"
+  },
+  {
+    "name": "render",
+    "line": 11260,
+    "end_line": 11260,
+    "classification": "KEEP in UI",
+    "reason": "DOM rendering of server-provided state",
+    "endpoint": "GET /api/state"
+  }
+]

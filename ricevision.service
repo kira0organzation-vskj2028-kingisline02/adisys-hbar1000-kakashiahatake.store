@@ -1,0 +1,15 @@
+[Unit]
+Description=RiceVision HMI Phase 1 Server
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ricevision
+ExecStart=/home/ubuntu/ricevision/venv/bin/python server.py --port 11111
+Restart=always
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
