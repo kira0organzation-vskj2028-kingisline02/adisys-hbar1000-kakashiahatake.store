@@ -91,16 +91,13 @@ def compare(jpeg_bytes, candidates, selected_id=0, min_inliers=8, include_front_
     
     t0 = time.time()
     orig_h, orig_w = bgr.shape[:2]
-    # In dual camera stream, front face is in left half
-    if orig_w > orig_h * 1.15:
-        half_w = orig_w // 2
-        crop = bgr[:, :half_w]
-    else:
-        crop = bgr
 
-    kq, dq, q_hist, _ = _extract_features(crop)
+    # Extract features from query image
+    # Note: Full frame preserves all artwork, logos, Tamil/English text, and rice bowl features
+    # without blindly slicing centered or right-held bags in 16:9 / 4:3 webcams and Pi cameras
+    kq, dq, q_hist, _ = _extract_features(bgr)
     if dq is None or len(kq) < 6:
-        return {"result": "NO_READ", "confidence": 0.0, "best": None, "inliers": 0, "reason": "insufficient features", "time_ms": round((time.time() - t0)*1000, 1)}
+        return {"result": "NO_READ", "confidence": 0.0, "best": None, "best_recipe_id": None, "inliers": 0, "reason": "insufficient features", "time_ms": round((time.time() - t0)*1000, 1)}
 
     # Deduplicate candidates by image path
     seen_paths = set()
@@ -112,24 +109,20 @@ def compare(jpeg_bytes, candidates, selected_id=0, min_inliers=8, include_front_
         seen_paths.add(str(p))
         uniq_cands.append((rid, name, p))
 
-    # Fast pre-rank candidates by color correlation (takes <0.1ms per cand)
-    ranked_cands = []
+    # Evaluate all unique candidates with SIFT matching and RANSAC homography
+    scores = []
     for rid, name, p in uniq_cands:
         kr, dr, r_hist, _ = _ref(p)
         if dr is None or len(kr) < 6:
             continue
+
         c_score = 0.0
         if q_hist is not None and r_hist is not None:
             try:
                 c_score = float(cv2.compareHist(q_hist, r_hist, cv2.HISTCMP_CORREL))
             except Exception:
                 pass
-        ranked_cands.append((c_score, rid, name, p, kr, dr))
 
-    ranked_cands.sort(key=lambda x: x[0], reverse=True)
-
-    scores = []
-    for c_score, rid, name, p, kr, dr in ranked_cands:
         matches = _matcher.knnMatch(dq, dr, k=2)
         good = [m[0] for m in matches if len(m) == 2 and m[0].distance < 0.75 * m[1].distance]
         
@@ -137,34 +130,36 @@ def compare(jpeg_bytes, candidates, selected_id=0, min_inliers=8, include_front_
         if len(good) >= 8:
             src = np.float32([kq[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dst = np.float32([kr[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-            _, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
-            if mask is not None:
-                inliers = int(mask.sum())
+            H, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+            if mask is not None and H is not None:
+                det = float(np.linalg.det(H[:2, :2]))
+                if 0.02 < abs(det) < 50.0:
+                    inliers = int(mask.sum())
 
         c_sim = max(0.0, min(1.0, (c_score + 1.0) / 2.0))
-        comb = inliers + (c_sim * 15.0)
-        scores.append((comb, inliers, c_sim, rid, name))
+        comb = inliers + (c_sim * 10.0)
+        scores.append((inliers, comb, c_sim, rid, name))
 
-        # Instant early exit: if inliers >= 60, genuine match is 100% verified!
-        if inliers >= 60:
+        # Instant early exit if very high inliers confirm genuine match
+        if inliers >= 150:
             break
 
-    scores.sort(key=lambda x: (x[1], x[0]), reverse=True)
+    scores.sort(key=lambda x: (x[0], x[1]), reverse=True)
     time_ms = round((time.time() - t0) * 1000, 1)
     
     if not scores:
-        return {"result": "NO_READ", "confidence": 0.0, "best": None, "inliers": 0, "reason": "no candidate images", "time_ms": time_ms}
+        return {"result": "NO_READ", "confidence": 0.0, "best": None, "best_recipe_id": None, "inliers": 0, "reason": "no candidate images", "time_ms": time_ms}
 
-    comb, inl, c_sim, rid, name = scores[0]
+    inl, comb, c_sim, rid, name = scores[0]
     if inl < min_inliers:
         conf = round(max(0.1, min(0.48, (inl / max(1, min_inliers)) * 0.45 + (c_sim * 0.05))), 2)
-        return {"result": "NO_READ", "confidence": conf, "best": name, "best_recipe_id": rid,
-                "inliers": inl, "color_sim": round(c_sim, 2), "reason": "inliers below threshold", "time_ms": time_ms}
+        return {"result": "NO_READ", "confidence": conf, "best": None, "best_recipe_id": None,
+                "inliers": inl, "color_sim": round(c_sim, 2), "reason": "no matching rice bag recognized", "time_ms": time_ms}
 
-    # Tightly calibrated confidence: >= 0.65 for genuine matches, up to 0.99
-    base = 0.65 + min(0.30, (inl - min_inliers) / 40.0 * 0.30)
-    color_bonus = (c_sim - 0.5) * 0.08 if c_sim > 0.5 else 0
-    conf = round(min(0.99, max(0.65, base + color_bonus)), 2)
+    # Tightly calibrated confidence: >= 0.70 for genuine matches, up to 0.99
+    base = 0.70 + min(0.28, (inl - min_inliers) / 40.0 * 0.28)
+    color_bonus = (c_sim - 0.5) * 0.04 if c_sim > 0.5 else 0
+    conf = round(min(0.99, max(0.70, base + color_bonus)), 2)
 
     is_match = (selected_id == 0 or rid == selected_id)
     resp = {
@@ -786,18 +781,14 @@ def match_dual_images(bgr, zero_offset_mm=0.0, scale=None, tolerance=7.0):
     _recent_errors.append(raw_error_mm)
     smooth_err_mm = float(np.median(_recent_errors))
 
-    # 1cm resolution stabilization (+/- 1cm acceptable spec)
-    if abs(smooth_err_mm) <= 5.0:
-        stable_err_mm = 0.0
-    elif 5.0 < smooth_err_mm <= 15.0:
-        stable_err_mm = 10.0
-    elif -15.0 <= smooth_err_mm < -5.0:
-        stable_err_mm = -10.0
-    else:
-        stable_err_mm = round(smooth_err_mm / 10.0) * 10.0
+    # Real continuous optical registration distance error & horizontal alignment calculation
+    # Deadband of 0.05 mm for zero alignment
+    calc_err_mm = 0.0 if abs(smooth_err_mm) < 0.05 else round(smooth_err_mm, 1)
+    dx_mm = round(dx_px / eff_scale, 1) if dx_px is not None else 0.0
+    reg_err_mm = round(abs(calc_err_mm), 1)
 
-    is_pass = (abs(stable_err_mm) <= tolerance)
-    bin_name = "0-7" if abs(stable_err_mm) <= 7.0 else ("8-15" if abs(stable_err_mm) <= 15.0 else ("16-25" if abs(stable_err_mm) <= 25.0 else "over"))
+    is_pass = (reg_err_mm <= tolerance)
+    bin_name = "0-7" if reg_err_mm <= 7.0 else ("8-15" if reg_err_mm <= 15.0 else ("16-25" if reg_err_mm <= 25.0 else "over"))
 
     return {
         "found": True,
@@ -805,17 +796,17 @@ def match_dual_images(bgr, zero_offset_mm=0.0, scale=None, tolerance=7.0):
         "method": method,
         "result": "PASS" if is_pass else "FAIL",
         "status": "IN SPEC" if is_pass else "OUT OF SPEC",
-        "error_mm": stable_err_mm,
-        "offset_y_mm": stable_err_mm,
-        "offset_x_mm": round(dx_px / eff_scale, 2) if dx_px is not None else 0.0,
-        "reg_err_mm": abs(stable_err_mm),
+        "error_mm": calc_err_mm,
+        "offset_y_mm": calc_err_mm,
+        "offset_x_mm": dx_mm,
+        "reg_err_mm": reg_err_mm,
         "raw_error_mm": round(raw_error_mm, 2),
         "confidence": round(conf, 2),
         "scale_px_per_mm": round(eff_scale, 3),
         "distance_px": round(dy_px, 2),
         "dy_px": round(dy_px, 2),
         "bin": bin_name,
-        "resolution": "1cm_stable"
+        "resolution": "real_subpixel"
     }
 
 def compare_front_back(jpeg_bytes_or_bgr, selected_id=0, sim_error="live",

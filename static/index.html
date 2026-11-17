@@ -3741,7 +3741,7 @@ html, body {
         <span id="live-cam-title-lbl">CAMERA</span>
       </span>
       <div style="display:flex;align-items:center;gap:4px;">
-        <button id="btn-toggle-cam-feed" type="button" style="background:#091e3a;border:1px solid #1f6feb;color:#58a6ff;font-size:7px;font-weight:800;padding:1px 5px;border-radius:3px;cursor:pointer;line-height:1.2;" title="Toggle between Bag Image and Live Camera">BAG 0mm</button>
+        <span id="live-cam-feed-badge" style="background:#091e3a;border:1px solid #1f6feb;color:#58a6ff;font-size:7px;font-weight:800;padding:1px 5px;border-radius:3px;line-height:1.2;font-family:var(--font-mono);">LIVE STREAM</span>
         <span id="live-cam-top-stat" style="font-size:7.5px;color:#64748b;font-weight:900;letter-spacing:0.4px;font-family:var(--font-mono);background:#090d14;border:1px solid #1e293b;padding:1px 5px;border-radius:3px;">CAMERA OFF</span>
       </div>
     </div>
@@ -3818,11 +3818,9 @@ html, body {
     
     <div class="metric-tile" style="padding:4px 6px;">
       <label style="font-size:7.5px;">OPTICAL REGISTRATION MODE</label>
-      <div class="full-cam-error-btns" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:4px;margin-top:3px;">
-        <button type="button" class="btn error-pill active" data-error="live" style="height:24px;font-size:8px;font-weight:900;background:#091e3a;border:1.5px solid #1f6feb;color:#58a6ff;padding:0;letter-spacing:0.3px;display:flex;align-items:center;justify-content:center;gap:4px;" title="Live Real-Time Camera"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#38bdf8;box-shadow:0 0 5px #38bdf8;"></span>LIVE</button>
-        <button type="button" class="btn error-pill" data-error="0mm" style="height:24px;font-size:8px;font-weight:900;background:#161b22;border:1px solid #30363d;color:#c9d1d9;padding:0;letter-spacing:0.3px;" title="0.0mm Reference Bag (In Spec)">0 mm (OK)</button>
-        <button type="button" class="btn error-pill" data-error="+10mm" style="height:24px;font-size:8px;font-weight:900;background:#161b22;border:1px solid #30363d;color:#c9d1d9;padding:0;letter-spacing:0.3px;" title="+10.0mm Error Test Frame">+10 mm</button>
-        <button type="button" class="btn error-pill" data-error="-10mm" style="height:24px;font-size:8px;font-weight:900;background:#161b22;border:1px solid #30363d;color:#c9d1d9;padding:0;letter-spacing:0.3px;" title="-10.0mm Error Test Frame">-10 mm</button>
+      <div style="display:flex;align-items:center;gap:6px;height:24px;margin-top:3px;padding:0 8px;background:#091e3a;border:1.5px solid #1f6feb;border-radius:4px;">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#38bdf8;box-shadow:0 0 6px #38bdf8;"></span>
+        <span style="font-size:8.5px;font-weight:900;color:#58a6ff;letter-spacing:0.5px;font-family:var(--font-mono);">LIVE CONTINUOUS OPTICAL REGISTRATION</span>
       </div>
     </div>
     
@@ -5822,8 +5820,7 @@ function updateMarkWindowWithError(errorMm) {
   if (isStn2Off) {
     errorMm = 0.0;
   } else if (typeof errorMm !== 'number' || !Number.isFinite(errorMm)) {
-    const camErr = window.activeCamError || '0mm';
-    errorMm = (camErr === '-10mm') ? -10.0 : ((camErr === '+10mm') ? 10.0 : (typeof window.lastReportedErrorMm === 'number' ? window.lastReportedErrorMm : 0.0));
+    errorMm = typeof window.lastReportedErrorMm === 'number' ? window.lastReportedErrorMm : 0.0;
   }
   window.lastReportedErrorMm = isStn2Off ? 0.0 : errorMm;
 
@@ -7238,8 +7235,7 @@ function refreshUI() {
   if (elWindow) elWindow.textContent = rec.markWindow ?? 40;
 
   // Mark position: show numeric error in mm and update Mark Window
-  const camErr = window.activeCamError || '0mm';
-  const errMm = (camErr === '-10mm') ? -10.0 : ((camErr === '+10mm') ? 10.0 : (typeof window.lastReportedErrorMm === 'number' ? window.lastReportedErrorMm : 0.0));
+  const errMm = typeof window.lastReportedErrorMm === 'number' ? window.lastReportedErrorMm : 0.0;
   updateMarkWindowWithError(errMm);
   if (typeof updateDbRefPlate === 'function') updateDbRefPlate(rec);
   if (typeof updateCalOverlayFields === 'function') updateCalOverlayFields(rec);
@@ -8271,7 +8267,10 @@ function updateDistanceDisplay(distanceMm, data) {
   // Note: STN 2 ruler & mark indicator are driven exclusively by FBARX link (updateRepAndRulerDisplay)
   const hudPill = document.getElementById('hud-error-pill');
   if (hudPill) {
-    hudPill.textContent = `REGISTRATION: ${text} • ALIGN (ΔX): 0.0mm`;
+    const dxMm = (typeof data?.offset_x_mm === 'number') ? data.offset_x_mm : 0.0;
+    const dxSign = dxMm > 0 ? '+' : '';
+    const dxStr = Math.abs(dxMm) < 0.05 ? '0.0mm' : `${dxSign}${dxMm.toFixed(1)}mm`;
+    hudPill.textContent = `REGISTRATION: ${text} • ALIGN (ΔX): ${dxStr}`;
     hudPill.style.color = color;
     hudPill.style.borderColor = color;
   }
@@ -9129,7 +9128,7 @@ async function openRecipeCamera(){
       if (v && v.parentElement) v.parentElement.appendChild(streamImg);
     }
     streamImg.crossOrigin = 'anonymous';
-    streamImg.src = '/api/camera/stream?error=0mm&t=' + Date.now();
+    streamImg.src = '/api/camera/stream?error=live&t=' + Date.now();
     streamImg.style.display = 'block';
     streamImg.style.zIndex = '5';
     if (v) v.style.display = 'none';
@@ -9258,17 +9257,14 @@ async function runAutoCameraDetection(forced = false){
 
     if(data && (data.result === 'MATCH' || (data.inliers >= 10 && data.confidence >= 0.50) || (data.best && data.confidence >= 0.65))){
       let hit = null;
+      const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
       if(data.best_recipe_id) {
         hit = RecipeDB.list().find(x => String(x.numericId) === String(data.best_recipe_id) || String(x.recipeId) === String(data.best_recipe_id) || x.id === String(data.best_recipe_id));
       }
       if(!hit && data.best) {
-        const bl = data.best.toLowerCase().trim();
-        hit = RecipeDB.list().find(x => x.name && x.name.toLowerCase() === bl)
-           || RecipeDB.list().find(x => x.name && x.name.toLowerCase().includes(bl))
-           || RecipeDB.list().find(x => bl.includes(x.name ? x.name.toLowerCase() : '---'));
-      }
-      if(!hit && RecipeDB.list().length > 0) {
-        hit = RecipeDB.list()[0];
+        const bClean = clean(data.best);
+        hit = RecipeDB.list().find(x => clean(x.name) === bClean)
+           || RecipeDB.list().find(x => clean(x.name).includes(bClean) || bClean.includes(clean(x.name)));
       }
 
       if(hit){
@@ -9294,11 +9290,11 @@ async function runAutoCameraDetection(forced = false){
       try {
         const sig = RecipeMatch.signatures(c);
         const ranked = RecipeMatch.rank(sig, RecipeDB.list());
-        if(ranked && ranked.length > 0 && ranked[0].score >= 0.55){
+        if(ranked && ranked.length > 0 && ranked[0].score >= 0.72 && (!ranked[1] || ranked[0].score - ranked[1].score >= 0.08)){
           const hit = ranked[0];
           const confPct = Math.round(hit.score * 100);
           if(siftStatus) {
-            siftStatus.textContent = 'MATCHED';
+            siftStatus.textContent = 'MATCHED (COLOR)';
             siftStatus.style.color = '#10b981';
           }
           if(resMsg) {
@@ -9358,7 +9354,7 @@ async function matchImageFile(file){
   try{
     // High-speed SIFT match on backend
     try {
-      const resp = await fetch('/api/camera/compare?source=recipe_load_file&error=0mm', {
+      const resp = await fetch('/api/camera/compare?source=recipe_load_file&error=live', {
         method: 'POST',
         headers: { 'Content-Type': file.type || 'image/jpeg' },
         body: file
@@ -9367,13 +9363,14 @@ async function matchImageFile(file){
         const data = await resp.json();
         if(data && (data.result === 'MATCH' || data.inliers >= 15)){
           let hit = null;
+          const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
           if(data.best_recipe_id) {
             hit = RecipeDB.list().find(x => String(x.numericId) === String(data.best_recipe_id) || x.id === String(data.best_recipe_id));
           }
           if(!hit && data.best) {
-            const bl = data.best.toLowerCase();
-            hit = RecipeDB.list().find(x => x.name && x.name.toLowerCase() === bl)
-               || RecipeDB.list().find(x => x.name && x.name.toLowerCase().includes(bl));
+            const bClean = clean(data.best);
+            hit = RecipeDB.list().find(x => clean(x.name) === bClean)
+               || RecipeDB.list().find(x => clean(x.name).includes(bClean) || bClean.includes(clean(x.name)));
           }
           if(hit){
             const confPct = Math.round((data.confidence || 0.95) * 100);
@@ -10492,7 +10489,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
 /* =====================  LIVE CAM ERROR SWITCHER & VEERA SHIVAJI F&B  ===================== */
 (function() {
-  let activeCamError = '0mm';
+  let activeCamError = 'live';
   let liveMediaStream = null;
   let liveCompareTimer = null;
   let isComparing = false;
@@ -11239,7 +11236,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       // If browser camera stream is active, don't fallback to image
       if (browserCameraStream && browserCameraStream.active) return;
 
-      const chosenErr = window.activeCamError || '0mm';
+      const chosenErr = window.activeCamError || 'live';
       const activeRecipeSrc = (typeof window.getActiveRecipeCamSrc === 'function')
         ? window.getActiveRecipeCamSrc(chosenErr)
         : '/images/veerashivaji_front_back_0mm.jpg';
@@ -11407,9 +11404,16 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
 
   function startLiveComparisonLoop() {
-    // Camera measurements run in background CameraService thread on server.py
     if (liveCompareTimer) clearInterval(liveCompareTimer);
-    liveCompareTimer = null;
+    liveCompareTimer = setInterval(() => {
+      const s2CurMode = String(window.HMI_STATE?.stn2?.mode || document.querySelector('#col-stn2 .mode-btn.active')?.dataset?.mode || 'OFF').toUpperCase();
+      const isCamScreenActive = document.getElementById('screen-cam')?.classList.contains('active');
+      if (s2CurMode !== 'OFF' && (window.isCameraUserActive || isCamScreenActive)) {
+        if (typeof calculateFrontBackDistance === 'function') {
+          calculateFrontBackDistance(window.HMI_STATE?.recipe);
+        }
+      }
+    }, 1200);
   }
 
   window.setLiveCamError = function(err) {
@@ -11720,25 +11724,11 @@ document.addEventListener('DOMContentLoaded',async()=>{
       liveHdr.parentElement.addEventListener('click', openLiveCam);
     }
 
-    // Toggle button on Screen 0 (BAG 0mm <-> LIVE CAM)
-    const btnToggle = document.getElementById('btn-toggle-cam-feed');
-    if (btnToggle) {
-      btnToggle.addEventListener('click', function(e) {
-        if (e) { e.preventDefault(); e.stopPropagation(); }
-        const curMode = String(window.HMI_STATE?.stn2?.mode || document.querySelector('#col-stn2 .mode-btn.active')?.dataset?.mode || 'OFF').toUpperCase();
-        if (curMode === 'OFF') {
-          if (typeof showToast === 'function') {
-            showToast('STN 2 IS IN OFF MODE — CAMERA UNAVAILABLE', true);
-          }
-          return;
-        }
-        const cur = window.activeCamError || '0mm';
-        if (cur === 'live') {
-          if (typeof window.setLiveCamError === 'function') window.setLiveCamError('0mm');
-        } else {
-          if (typeof window.setLiveCamError === 'function') window.setLiveCamError('live');
-        }
-      });
+    // Screen 0 Live camera feed badge (clicks open Camera Inspection)
+    const feedBadge = document.getElementById('live-cam-feed-badge') || document.getElementById('btn-toggle-cam-feed');
+    if (feedBadge) {
+      feedBadge.style.cursor = 'pointer';
+      feedBadge.addEventListener('click', openLiveCam);
     }
 
     // Wire Screen 2 USE BROWSER CAMERA button
@@ -11803,7 +11793,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
         scanBtn.innerHTML = '<span class="status-dot pulsing" style="background:#20e85a;display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;"></span> SCANNING...';
         try {
           fetch('/api/fbarx/cmd', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cmd: 'SCAN' }) }).catch(() => {});
-          const err = window.activeCamError || '0mm';
+          const err = window.activeCamError || 'live';
           let blob = null;
           const activeVid = [
             document.getElementById('full-cam-video'),
@@ -11877,7 +11867,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
         snapTestBtn.textContent = 'CAPTURING & COMPARING...';
         try {
           fetch('/api/fbarx/cmd', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cmd: 'SCAN' }) }).catch(() => {});
-          const err = window.activeCamError || '0mm';
+          const err = window.activeCamError || 'live';
           let blob = null;
           const vid = document.getElementById('full-cam-video');
           if (err === 'live' && vid && vid.style.display !== 'none' && vid.videoWidth > 0) {

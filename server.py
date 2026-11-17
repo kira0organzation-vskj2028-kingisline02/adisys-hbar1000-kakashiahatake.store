@@ -111,7 +111,7 @@ def init_db():
     for col, typ in (('c_26_w', 'INTEGER DEFAULT 0'), ('unscored', 'INTEGER DEFAULT 0'), ('window_mm', 'INTEGER')):
         try: c.execute(f"ALTER TABLE production_records ADD COLUMN {col} {typ}")
         except Exception: pass
-    c.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('camera_sim_error','0mm')")
+    c.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('camera_sim_error','live')")
     # Camera Line-Distance Calibration Settings (11-11-26.md Section 3 & 4)
     for k, v in (
         ('scale_px_per_mm', '1.0'),
@@ -1286,7 +1286,7 @@ class H(BaseHTTPRequestHandler):
                     except Exception: pass
                 c = conn()
                 try:
-                    err = qs.get("error", [setting(c, "camera_sim_error", "0mm")])[0]
+                    err = qs.get("error", [setting(c, "camera_sim_error", "live")])[0]
                     rid = int(qs.get("recipe_id", [0])[0])
                     rec = one(c, "SELECT name FROM recipes WHERE recipe_id=?", (rid,)) if rid else None
                     if not rec:
@@ -1306,7 +1306,7 @@ class H(BaseHTTPRequestHandler):
                 return self._handle_compare_front_back(qs, force_trigger=(p == "/api/camera/trigger"))
             if p == "/api/camera/stream":
                 c = conn()
-                err = qs.get("error", [setting(c, "camera_sim_error", "0mm")])[0]
+                err = qs.get("error", [setting(c, "camera_sim_error", "live")])[0]
                 rid = int(qs.get("recipe_id", [0])[0])
                 rec = one(c, "SELECT name FROM recipes WHERE recipe_id=?", (rid,)) if rid else None
                 if not rec:
@@ -1667,7 +1667,7 @@ class H(BaseHTTPRequestHandler):
             reset_closed_loop()
         c = conn()
         cal = load_camera_calibration_from_db(c)
-        err = qs.get("error", [setting(c, "camera_sim_error", "0mm")])[0]
+        err = qs.get("error", [setting(c, "camera_sim_error", "live")])[0]
         zero_cal = setting(c, "zero_offset_mm", None)
         if zero_cal is None:
             zero_cal = setting(c, "zero_px", None)
@@ -1757,7 +1757,7 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, {"ok": True, "zero_offset_mm": 0.0, "zero_px": 0.0, "reset": True})
 
         cal = load_camera_calibration_from_db(c)
-        err = qs.get("error", [setting(c, "camera_sim_error", "0mm")])[0]
+        err = qs.get("error", [setting(c, "camera_sim_error", "live")])[0]
         rid = int(qs.get("recipe_id", [0])[0])
         rec = one(c, "SELECT name, repeat_length_mm, mark_offset_mm FROM recipes WHERE recipe_id=?", (rid,)) if rid else None
         if not rec:
@@ -1846,7 +1846,7 @@ class H(BaseHTTPRequestHandler):
         body = self.raw
         jpg = body if (body and len(body) > 100) else None
         c_tmp = conn()
-        err = qs.get("error", [setting(c_tmp, "camera_sim_error", "0mm")])[0]
+        err = qs.get("error", [setting(c_tmp, "camera_sim_error", "live")])[0]
         c_tmp.close()
         t_1 = time.time()
         if not jpg and err == "live":
