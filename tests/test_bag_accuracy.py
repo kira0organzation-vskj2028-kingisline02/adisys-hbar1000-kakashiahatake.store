@@ -11,6 +11,7 @@ Validates:
 5. Repeat length modulo wrap at +/- 930mm (half of 1860mm)
 6. Server calibration and compare API endpoints
 """
+import os
 import unittest
 import numpy as np
 import cv2
@@ -22,6 +23,10 @@ import json
 import threading
 import time
 from http.server import HTTPServer
+
+def _get_auth():
+    auth_env = os.environ.get("HMI_AUTH", "")
+    return tuple(auth_env.split(":", 1)) if ":" in auth_env else None
 
 class TestBagAccuracy(unittest.TestCase):
     _server_proc = None
@@ -177,7 +182,7 @@ class TestBagAccuracy(unittest.TestCase):
 
     def test_server_calibration_api(self):
         """Verify server /api/camera/calibration exposes and saves 1860mm bag and working distance."""
-        r = requests.get("http://127.0.0.1:11111/api/camera/calibration")
+        r = requests.get("http://127.0.0.1:11111/api/camera/calibration", auth=_get_auth())
         self.assertEqual(r.status_code, 200)
         cal = r.json()
         self.assertIn("working_distance_m", cal)
@@ -190,7 +195,7 @@ class TestBagAccuracy(unittest.TestCase):
     def test_server_calibrate_distance_api(self):
         """Verify POST /api/camera/calibrate_distance computes correct scale for 1m-2m WD."""
         # Call calibrate_distance for 1.5m WD
-        r = requests.post("http://127.0.0.1:11111/api/camera/calibrate_distance", json={"working_distance_m": 1.5})
+        r = requests.post("http://127.0.0.1:11111/api/camera/calibrate_distance", json={"working_distance_m": 1.5}, auth=_get_auth())
         self.assertEqual(r.status_code, 200)
         d = r.json()
         self.assertTrue(d.get("ok"))
@@ -200,7 +205,7 @@ class TestBagAccuracy(unittest.TestCase):
 
     def test_server_calibrate_bag_width_api(self):
         """Verify POST /api/camera/calibrate_bag_width calibrates scale from 535mm rice bag width."""
-        r = requests.post("http://127.0.0.1:11111/api/camera/calibrate_bag_width", json={"bag_width_px": 535.0, "known_width_mm": 535.0})
+        r = requests.post("http://127.0.0.1:11111/api/camera/calibrate_bag_width", json={"bag_width_px": 535.0, "known_width_mm": 535.0}, auth=_get_auth())
         self.assertEqual(r.status_code, 200)
         d = r.json()
         self.assertTrue(d.get("ok"))

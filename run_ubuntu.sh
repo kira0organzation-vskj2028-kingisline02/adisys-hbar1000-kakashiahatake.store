@@ -78,7 +78,7 @@ start_test_services() {
     sleep 1
 
     log "2. Starting RiceVision Server in TEST MODE on HTTP port 11111 (socket://127.0.0.1:5020)..."
-    FBARX_PORT="socket://127.0.0.1:5020" FBARX_SIM=1 pm2 start server.py \
+    FBARX_PORT="socket://127.0.0.1:5020" FBARX_SIM=1 HMI_AUTH="${HMI_AUTH:-admin:admin123}" pm2 start server.py \
         --name "ricevision" \
         --restart-delay 1000 \
         --interpreter ./venv/bin/python3.11 \
@@ -113,7 +113,7 @@ start_prod_services() {
     kill_ports_and_processes
 
     log "Starting RiceVision Server in PRODUCTION MODE on HTTP port 11111 (FBARX_SIM=0, Physical Hardware)..."
-    FBARX_SIM=0 pm2 start server.py \
+    FBARX_SIM=0 HMI_AUTH="${HMI_AUTH:-admin:admin123}" pm2 start server.py \
         --name "ricevision" \
         --restart-delay 1000 \
         --interpreter ./venv/bin/python3.11 \

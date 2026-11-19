@@ -15,6 +15,7 @@ if (Test-Path "venv\Scripts\Activate.ps1") {
 
 $env:FBARX_SIM = "1"
 $env:PORT = "11111"
+if (-not $env:HMI_AUTH) { $env:HMI_AUTH = "admin:admin123" }
 
 Write-Host "Starting server on http://localhost:11111 ..." -ForegroundColor Green
 Start-Process python -ArgumentList "server.py --port 11111"

@@ -17,6 +17,8 @@ if [[ -f "$APP_DIR/venv/bin/activate" ]]; then
     source "$APP_DIR/venv/bin/activate"
 fi
 
+export HMI_AUTH="${HMI_AUTH:-admin:admin123}"
+
 export FBARX_SIM=0
 export PORT=11111
 

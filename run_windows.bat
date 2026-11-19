@@ -24,6 +24,7 @@ if /I "%MODE%"=="prod" (
 )
 
 set PORT=11111
+if "%HMI_AUTH%"=="" set HMI_AUTH=admin:admin123
 
 :: Start server in background
 echo Launching server on port 11111...

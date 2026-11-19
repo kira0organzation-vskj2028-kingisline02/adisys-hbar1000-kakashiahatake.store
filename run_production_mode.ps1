@@ -15,6 +15,7 @@ if (Test-Path "venv\Scripts\Activate.ps1") {
 
 $env:FBARX_SIM = "0"
 $env:PORT = "11111"
+if (-not $env:HMI_AUTH) { $env:HMI_AUTH = "admin:admin123" }
 if (-not $env:FBARX_PORT) {
     $env:FBARX_PORT = "COM9"
 }

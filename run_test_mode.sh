@@ -17,6 +17,8 @@ if [[ -f "$APP_DIR/venv/bin/activate" ]]; then
     source "$APP_DIR/venv/bin/activate"
 fi
 
+export HMI_AUTH="${HMI_AUTH:-admin:admin123}"
+
 # Release ports 5020 and 11111 if already in use
 fuser -k 5020/tcp 2>/dev/null || true
 fuser -k 11111/tcp 2>/dev/null || true

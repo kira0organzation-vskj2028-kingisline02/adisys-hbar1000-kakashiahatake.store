@@ -15,6 +15,7 @@ if exist "venv\Scripts\activate.bat" (
 :: Set environment variables for production mode (SIMULATION STRICTLY OFF)
 set FBARX_SIM=0
 set PORT=11111
+if "%HMI_AUTH%"=="" set HMI_AUTH=admin:admin123
 
 :: If serial port not specified in environment, default to auto-detect / COM9
 if "%FBARX_PORT%"=="" (

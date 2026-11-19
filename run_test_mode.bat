@@ -15,6 +15,7 @@ if exist "venv\Scripts\activate.bat" (
 :: Set environment variables for test/simulation mode
 set FBARX_SIM=1
 set PORT=11111
+if "%HMI_AUTH%"=="" set HMI_AUTH=admin:admin123
 
 :: Start server in background
 echo Launching RiceVision server in TEST MODE on port 11111...

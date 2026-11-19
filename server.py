@@ -18,6 +18,8 @@ import vision
 from camera import camera
 import fbarx_link
 import fbarx_api
+from fbarx_link import FieldError, BoardError
+import config
 try:
     import cv2
 except Exception:
@@ -74,9 +76,18 @@ def verify_token(req_handler):
     if auth_h.startswith("Bearer "):
         tok = auth_h[7:].strip()
     if not tok:
-        tok = req_handler.headers.get("X-Auth-Token")
+        tok = req_handler.headers.get("X-Auth-Token") or req_handler.headers.get("X-Cal-Token")
     if not tok:
         return None
+    # Check unified token store
+    info = fbarx_api.get_token_info(tok)
+    if info:
+        return {
+            "role": info["role"],
+            "operator": "Operator",
+            "last_active": time.time(),
+            "expires_in": info["expires_in"]
+        }
     now_t = time.time()
     with WLOCK:
         s = AUTH_SESSIONS.get(tok)
@@ -86,6 +97,7 @@ def verify_token(req_handler):
             del AUTH_SESSIONS[tok]
             return None
         s["last_active"] = now_t
+        s["expires_in"] = int(SESSION_TIMEOUT_SEC - (now_t - s["last_active"]))
         return s
 
 def init_db():
@@ -510,21 +522,79 @@ def to_ui(r):
             u[k] = r[col]
     return u
 
-def clamp(v, a, b): return max(a, min(b, v))
-def clean_params(p):
+def validate_recipe_params(p):
+    """Validate recipe parameters strictly within engineering bounds.
+    Refuses out-of-range values with FieldError (HTTP 400 naming field) instead of silently clamping.
+    """
     o = {}
-    o["repeatLength"] = int(clamp(round(float(p.get("repeatLength", 740))), 100, 2000))
-    o["width"] = int(clamp(round(float(p.get("width", 495))), 1, 1000))
-    o["markWindow"] = int(clamp(round(float(p.get("markWindow", 40))), 10, 99))
-    o["markOffset"] = int(clamp(round(float(p.get("markOffset", 0))), -999, 999))
-    o["sTensionTarget"] = round(clamp(float(p.get("sTensionTarget", 5)), 0, 99.9), 1)
-    o["netWeight"] = round(clamp(float(p.get("netWeight", 25)), 1, 100), 1)
+    # Repeat length (mm): 100 - 2000
+    if "repeatLength" in p:
+        try: rl = float(p["repeatLength"])
+        except (TypeError, ValueError): raise FieldError("repeatLength", "Repeat length must be a valid number")
+        if rl < 100 or rl > 2000:
+            raise FieldError("repeatLength", f"Repeat length {rl} mm is out of range (100 - 2000 mm)")
+        o["repeatLength"] = int(round(rl))
+    else:
+        o["repeatLength"] = 740
+
+    # Width (mm): 1 - 1000
+    if "width" in p:
+        try: w = float(p["width"])
+        except (TypeError, ValueError): raise FieldError("width", "Width must be a valid number")
+        if w < 1 or w > 1000:
+            raise FieldError("width", f"Width {w} mm is out of range (1 - 1000 mm)")
+        o["width"] = int(round(w))
+    else:
+        o["width"] = 495
+
+    # Mark window (mm): 10 - 99
+    if "markWindow" in p:
+        try: mw = float(p["markWindow"])
+        except (TypeError, ValueError): raise FieldError("markWindow", "Mark window must be a valid number")
+        if mw < 10 or mw > 99:
+            raise FieldError("markWindow", f"Mark window {mw} mm is out of range (10 - 99 mm)")
+        o["markWindow"] = int(round(mw))
+    else:
+        o["markWindow"] = 40
+
+    # Mark offset (mm): -999 - 999
+    if "markOffset" in p:
+        try: mo = float(p["markOffset"])
+        except (TypeError, ValueError): raise FieldError("markOffset", "Mark offset must be a valid number")
+        if mo < -999 or mo > 999:
+            raise FieldError("markOffset", f"Mark offset {mo} mm is out of range (-999 - 999 mm)")
+        o["markOffset"] = int(round(mo))
+    else:
+        o["markOffset"] = 0
+
+    # S-Tension target (kg): 0.0 - 99.9
+    if "sTensionTarget" in p:
+        try: st = float(p["sTensionTarget"])
+        except (TypeError, ValueError): raise FieldError("sTensionTarget", "S-Tension target must be a valid number")
+        if st < 0.0 or st > 99.9:
+            raise FieldError("sTensionTarget", f"S-Tension target {st} kg is out of range (0.0 - 99.9 kg)")
+        o["sTensionTarget"] = round(st, 1)
+    else:
+        o["sTensionTarget"] = 5.0
+
+    # Net weight (kg): 1 - 100
+    if "netWeight" in p:
+        try: nw = float(p["netWeight"])
+        except (TypeError, ValueError): raise FieldError("netWeight", "Net weight must be a valid number")
+        if nw < 1.0 or nw > 100.0:
+            raise FieldError("netWeight", f"Net weight {nw} kg is out of range (1 - 100 kg)")
+        o["netWeight"] = round(nw, 1)
+    else:
+        o["netWeight"] = 25.0
+
     o["material"] = str(p.get("material") or "BOPP")[:40]
     o["brandTamil"] = str(p.get("brandTamil") or "")[:100]
     o["product"] = str(p.get("product") or "")[:100]
     for k in ("frontSensor", "frontMark", "frontBackground", "backSensor", "backMark", "backBackground"):
         o[k] = int(p.get(k) or 0)
     return o
+
+clean_params = validate_recipe_params
 
 def upsert_operator(c, name, photo_data_url=None):
     name = (name or "").strip()
@@ -1017,48 +1087,6 @@ def handle_action(c, d, client_ip="127.0.0.1"):
 
     raise ValueError(f"Unknown action: {action}")
 
-def handle_login(d):
-    login_type = str(d.get("type", "")).strip()
-    passcode = str(d.get("passcode", "")).strip()
-
-    valid = False
-    role = "operator"
-
-    # STN 1 calibration contains two authorized tiers:
-    # 1111 -> STN 1 Control Parameters (acErr, dcErr, displayDamp, brakeType, brakePower)
-    # 2222 -> STN 1 Loadcell Calibration (loadcellCapacity, knownWeight, zero/tare)
-    # STN 2 calibration: 3333
-    # Recipe calibration: 4444 (or 1111 legacy)
-    if passcode == "1111":
-        valid = True
-        role = "stn1_control"
-    elif passcode == "2222":
-        valid = True
-        role = "stn1_loadcell"
-    elif passcode == "3333":
-        valid = True
-        role = "stn2_cal"
-    elif passcode == "4444":
-        valid = True
-        role = "recipe_cal"
-    elif login_type == "stn1_control" and passcode == "1111":
-        valid = True
-        role = "stn1_control"
-    elif login_type == "stn1_loadcell" and passcode == "2222":
-        valid = True
-        role = "stn1_loadcell"
-    elif login_type == "stn2_cal" and passcode == "3333":
-        valid = True
-        role = "stn2_cal"
-    elif login_type in ("recipe_cal", "recipecal_password", "calibrate_password") and passcode in ("1111", "2222", "3333", "4444"):
-        valid = True
-        role = "recipe_cal"
-
-    if valid:
-        token = create_session(role=role, operator="Operator")
-        return 200, {"ok": True, "token": token, "role": role, "expires_in": int(SESSION_TIMEOUT_SEC)}
-    return 401, {"ok": False, "error": "Invalid Passcode"}
-
 def handle_report_get(qs):
     c = conn()
     try:
@@ -1080,8 +1108,14 @@ def handle_report_get(qs):
         tot_26_w = sum(r.get("c26_w", 0) for r in rec_list)
         tot_unsc = sum(r.get("unscored", 0) for r in rec_list)
 
-        pass_pct = round((tot_0_7 / tot_bags) * 100.0, 1) if tot_bags > 0 else 100.0
-        fail_pct = round(((tot_bags - tot_0_7) / tot_bags) * 100.0, 1) if tot_bags > 0 else 0.0
+        # Scored bags: only bags that had registration marks evaluated against tolerance
+        # Unscored bags (no-read / blank film) are tracked separately and not counted as tolerance failures
+        tot_failed = tot_8_15 + tot_16_25 + tot_26_w
+        tot_scored = tot_0_7 + tot_failed
+
+        pass_pct = round((tot_0_7 / tot_scored) * 100.0, 1) if tot_scored > 0 else 100.0
+        fail_pct = round((tot_failed / tot_scored) * 100.0, 1) if tot_scored > 0 else 0.0
+        unscored_pct = round((tot_unsc / tot_bags) * 100.0, 1) if tot_bags > 0 else 0.0
 
         return {
             "ok": True,
@@ -1089,13 +1123,15 @@ def handle_report_get(qs):
             "summary": {
                 "total_records": len(rec_list),
                 "total_bags": tot_bags,
+                "total_scored": tot_scored,
                 "c0_7": tot_0_7,
                 "c8_15": tot_8_15,
                 "c16_25": tot_16_25,
                 "c26_w": tot_26_w,
                 "unscored": tot_unsc,
                 "pass_pct": pass_pct,
-                "fail_pct": fail_pct
+                "fail_pct": fail_pct,
+                "unscored_pct": unscored_pct
             }
         }
     finally:
@@ -1119,9 +1155,61 @@ def handle_calibration_get():
     finally:
         c.close()
 
-def handle_calibration_post(d, client_ip="127.0.0.1"):
+def handle_calibration_post(d, client_ip="127.0.0.1", token=None):
     cat = d.get("category", "stn2")
     data = d.get("data") or d
+    tok = token or d.get("token") or (data.get("token") if isinstance(data, dict) else None)
+
+    # Protected endpoint: requires valid calibration session token
+    if not fbarx_api.verify_cal_token(tok):
+        return 403, {"ok": False, "error": "Calibration token required or expired", "field": "password"}
+
+    # Validation per category
+    if cat == "stn1_control":
+        for k, v in data.items():
+            if k in ("category", "data", "token"): continue
+            if k == "acErr":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("acErr", "acErr must be numeric")
+                if val < 0.01 or val > 9.99:
+                    raise FieldError("acErr", f"acErr {val} out of range (0.01 - 9.99%)")
+            elif k == "dcErr":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("dcErr", "dcErr must be numeric")
+                if val < 0 or val > 999:
+                    raise FieldError("dcErr", f"dcErr {val} out of range (0 - 999)")
+            elif k == "displayDamp":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("displayDamp", "displayDamp must be numeric")
+                if val < 1 or val > 99:
+                    raise FieldError("displayDamp", f"displayDamp {val} out of range (1 - 99)")
+            elif k == "brakePower":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("brakePower", "brakePower must be numeric")
+                if val < 0 or val > 100:
+                    raise FieldError("brakePower", f"brakePower {val} out of range (0 - 100%)")
+            elif k == "brakeType":
+                if str(v) not in ("Pneumatic", "Powder Brake", "Powder"):
+                    raise FieldError("brakeType", "brakeType must be Pneumatic or Powder Brake")
+
+    elif cat == "stn1_loadcell":
+        for k, v in data.items():
+            if k in ("category", "data", "token"): continue
+            if k == "loadcellCapacity":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("loadcellCapacity", "loadcellCapacity must be numeric")
+                if val < 1 or val > 999:
+                    raise FieldError("loadcellCapacity", f"loadcellCapacity {val} out of range (1 - 999)")
+            elif k == "knownWeight":
+                try: val = float(v)
+                except (TypeError, ValueError): raise FieldError("knownWeight", "knownWeight must be numeric")
+                if val < 0 or val > 999:
+                    raise FieldError("knownWeight", f"knownWeight {val} out of range (0 - 999 kg)")
+
+    elif cat == "stn2":
+        # Validate and write through fbarx_link; propagates FieldError and BoardError
+        fbarx_link.link.set_calibration(data)
+
     with WLOCK:
         c = conn()
         try:
@@ -1129,12 +1217,9 @@ def handle_calibration_post(d, client_ip="127.0.0.1"):
                 if k in ("category", "data", "token"): continue
                 c.execute("INSERT OR REPLACE INTO calibration_store(category, key, value, updated_at) VALUES(?,?,?,?)",
                           (cat, k, str(v), now()))
-                if cat == "stn2" and k in fbarx_link.CAL_NUMERIC:
-                    try: fbarx_link.link.write_cal_numeric(k, float(v))
-                    except Exception: pass
             c.commit()
             log_audit(f"calibration_{cat}", "batch", json.dumps(data), client_ip=client_ip)
-            return {"ok": True, "calibration": handle_calibration_get()["calibration"]}
+            return 200, {"ok": True, "calibration": handle_calibration_get()["calibration"]}
         finally:
             c.close()
 
@@ -1185,6 +1270,42 @@ class H(BaseHTTPRequestHandler):
         except (ConnectionError, BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             pass
 
+    def _cors_origin(self):
+        hdrs = getattr(self, "headers", None)
+        if not hdrs:
+            return None
+        origin = hdrs.get("Origin")
+        if not origin:
+            return None
+        host = hdrs.get("Host", "").split(":")[0]
+        if "localhost" in origin or "127.0.0.1" in origin or (host and host in origin):
+            return origin
+        return None
+
+    def _check_basic_auth(self):
+        hdrs = getattr(self, "headers", None)
+        auth_hdr = hdrs.get("Authorization") if hdrs else None
+        if not fbarx_api.basic_auth_ok(auth_hdr):
+            return False
+        proto = hdrs.get("X-Forwarded-Proto") if hdrs else None
+        srv = getattr(self, "server", None)
+        is_tls = getattr(srv, "is_tls", False) or (proto == "https")
+        client_host = self.client_address[0] if hasattr(self, "client_address") else "127.0.0.1"
+        if not is_tls and client_host not in ("127.0.0.1", "::1", "localhost"):
+            print(f"[SECURITY WARNING] Basic Auth credentials received over unencrypted HTTP from {client_host}. Use TLS (--cert/--key) or Nginx reverse proxy in production.")
+        return True
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        origin = self._cors_origin()
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Credentials", "true")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Cal-Token, X-Auth-Token")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+        self.send_header("Connection", "close")
+        self.end_headers()
+
     def _send(self, code, body, ctype="application/json", extra=None, cache_control="no-store, no-cache, must-revalidate, max-age=0"):
         try:
             if not isinstance(body, (bytes, bytearray)): body = json.dumps(body, default=str).encode()
@@ -1195,6 +1316,12 @@ class H(BaseHTTPRequestHandler):
                 self.send_header("Expires", "0")
             self.send_header("Permissions-Policy", "camera=(self)")
             self.send_header("Connection", "close")
+            origin = self._cors_origin()
+            if origin:
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Access-Control-Allow-Credentials", "true")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Cal-Token, X-Auth-Token")
+                self.send_header("Vary", "Origin")
             for k, v in (extra or {}).items(): self.send_header(k, v)
             self.end_headers(); self.wfile.write(body)
         except (ConnectionError, BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
@@ -1211,7 +1338,7 @@ class H(BaseHTTPRequestHandler):
 
     def do_HEAD(self):
         try:
-            if not fbarx_api.basic_auth_ok(self.headers.get("Authorization")):
+            if not self._check_basic_auth():
                 return self._send(401, {"error": "login required"},
                                   extra={"WWW-Authenticate": 'Basic realm="FBAR 1000"'})
             self.send_response(200)
@@ -1223,17 +1350,17 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path); p = u.path; qs = parse_qs(u.query)
         try:
-            if not fbarx_api.basic_auth_ok(self.headers.get("Authorization")):
+            if not self._check_basic_auth():
                 return self._send(401, {"error": "login required"},
                                   extra={"WWW-Authenticate": 'Basic realm="FBAR 1000"'})
             if p == "/api/health": return self._send(200, {"ok": True, "time": now(), "vision": vision.AVAILABLE})
             r = fbarx_api.route_get(fbarx_link.link, p)
             if r: return self._send(*r)
-            if p == "/api/fbarx/auth_status":
+            if p in ("/api/fbarx/auth_status", "/api/auth_status"):
                 sess = verify_token(self)
                 if sess:
-                    rem = max(0, int(SESSION_TIMEOUT_SEC - (time.time() - sess["last_active"])))
-                    return self._send(200, {"authenticated": True, "operator": sess["operator"], "expires_in": rem})
+                    rem = sess.get("expires_in", int(SESSION_TIMEOUT_SEC - (time.time() - sess["last_active"])))
+                    return self._send(200, {"authenticated": True, "operator": sess["operator"], "role": sess.get("role", "operator"), "expires_in": rem})
                 return self._send(200, {"authenticated": False})
             if p == "/api/fbarx/audit_log":
                 c = conn()
@@ -1318,7 +1445,9 @@ class H(BaseHTTPRequestHandler):
             # static files
             rel = "static/index.html" if p in ("/", "") else p.lstrip("/")
             f = (HERE / rel).resolve()
-            if HERE in f.parents and f.is_file() and f.parent.name in ("static", "images", "captures") and f.suffix != ".db":
+            if not f.is_file() and (HERE / "static" / rel).is_file():
+                f = (HERE / "static" / rel).resolve()
+            if HERE in f.parents and f.is_file() and ((HERE / "static") in f.parents or f.parent.name in ("static", "images", "captures")) and f.suffix != ".db":
                 content = f.read_bytes()
                 etag = f'"{hashlib.md5(content).hexdigest()}"'
                 if self.headers.get("If-None-Match") == etag:
@@ -1343,7 +1472,9 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = self._cors_origin()
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
         self.send_header("Connection", "close")
         self.end_headers()
         # Immediately write first frame so connection starts streaming without delay
@@ -1423,12 +1554,23 @@ class H(BaseHTTPRequestHandler):
                         c.close()
 
             if p == "/api/login":
-                code, res = handle_login(d)
+                return self._send(404, {"error": "Endpoint removed. Use POST /api/fbarx/unlock with role-based passcode."})
+
+            if p in ("/api/unlock", "/api/fbarx/unlock"):
+                code, res = fbarx_api.route_post(fbarx_link.link, "/api/fbarx/unlock", d, self.headers)
                 return self._send(code, res)
 
             if p == "/api/calibration":
-                res = handle_calibration_post(d, self.client_address[0])
-                return self._send(200, res)
+                tok = self.headers.get("X-Cal-Token") or (self.headers.get("Authorization", "").replace("Bearer ", "") if "Bearer" in self.headers.get("Authorization", "") else None)
+                if not tok and isinstance(d, dict):
+                    tok = d.get("token") or (d.get("data", {}).get("token") if isinstance(d.get("data"), dict) else None)
+                try:
+                    res_status, res_body = handle_calibration_post(d, self.client_address[0], token=tok)
+                    return self._send(res_status, res_body)
+                except FieldError as e:
+                    return self._send(400, {"error": str(e), "field": e.field})
+                except BoardError as e:
+                    return self._send(503, {"error": str(e)})
 
             if p == "/api/camera/match":
                 res = handle_camera_match(qs, self.raw, d)
@@ -1549,6 +1691,7 @@ class H(BaseHTTPRequestHandler):
                 c = conn()
                 try:
                     out = self._write(c, p, d); c.commit(); return self._send(200, out)
+                except FieldError as e: c.rollback(); return self._send(400, {"error": str(e), "field": e.field})
                 except ValueError as e: c.rollback(); return self._send(400, {"error": str(e)})
                 except sqlite3.IntegrityError as e: c.rollback(); return self._send(409, {"error": "DB constraint: " + str(e)})
                 finally: c.close()
@@ -1560,14 +1703,14 @@ class H(BaseHTTPRequestHandler):
     def _write(self, c, p, d):
         if p == "/api/operators":
             oid = upsert_operator(c, d.get("name"), d.get("photo"))
-            if not oid: raise ValueError("operator name required")
+            if not oid: raise FieldError("name", "operator name required")
             log_event(c, "OPERATOR_ADDED", d["name"]); return {"operator_id": oid}
 
         if p == "/api/recipes":       # CALIBRATION: SAVE & EXIT
             r = d.get("recipe") or {}; name = (r.get("name") or "").strip(); op = (d.get("operator") or "").strip()
-            if not name: raise ValueError("recipe name required")
-            if not op: raise ValueError("operator name required")
-            prm = clean_params(r); oid = upsert_operator(c, op, d.get("operatorPhoto"))
+            if not name: raise FieldError("name", "recipe name required")
+            if not op: raise FieldError("operator", "operator name required")
+            prm = validate_recipe_params(r); oid = upsert_operator(c, op, d.get("operatorPhoto"))
             rid_arg = r.get("recipeId")
             if rid_arg:
                 ex = one(c, "SELECT recipe_id, brand_tamil FROM recipes WHERE recipe_id=?", (rid_arg,))
@@ -1922,21 +2065,26 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if a.auth:
         os.environ["HMI_AUTH"] = a.auth
+    if not fbarx_api.auth_enabled():
+        sys.stderr.write("\n[FATAL] Server refused to start: HMI_AUTH is not configured.\n")
+        sys.stderr.write("To secure the HMI and APIs, set environment variable HMI_AUTH='user:password'\n")
+        sys.stderr.write("or pass --auth user:password on the command line.\n\n")
+        sys.exit(1)
     if not DB.exists(): print("creating new DB"); 
     init_db()
     srv = RiceVisionServer(("0.0.0.0", a.port), H)
+    srv.is_tls = False
     proto = "http"
     if a.cert and a.key:
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER); ctx.load_cert_chain(a.cert, a.key)
         srv.socket = ctx.wrap_socket(srv.socket, server_side=True); proto = "https"
+        srv.is_tls = True
     print(f"RiceVision Phase 1 on {proto}://0.0.0.0:{a.port}   vision={'on' if vision.AVAILABLE else 'OFF (install python3-opencv)'}")
     try:
         cands_pre = get_all_candidates()
         vision.prewarm_cache(cands_pre)
         print(f"[VISION] Prewarmed {len(cands_pre)} reference template descriptors into memory.")
     except Exception as e: print(f"[VISION] Prewarm error: {e}")
-    if not fbarx_api.auth_enabled():
-        print("[SECURITY] HMI_AUTH is not set: the page and /api/* are OPEN. Set HMI_AUTH=user:password")
     try:
         c = conn()
         act_row = one(c, """SELECT r.repeat_length_mm AS rl, r.mark_window_mm AS mw, r.mark_offset_mm AS mo, r.s_tension_kg AS st

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS recipes (
   brand_tamil      TEXT,
   product          TEXT,
   bag_weight_kg    REAL,
-  repeat_length_mm INTEGER NOT NULL DEFAULT 740 CHECK (repeat_length_mm BETWEEN 1 AND 2000),
+  repeat_length_mm INTEGER NOT NULL DEFAULT 740 CHECK (repeat_length_mm BETWEEN 100 AND 2000),
   width_mm         INTEGER NOT NULL DEFAULT 495 CHECK (width_mm BETWEEN 1 AND 1000),
   material         TEXT NOT NULL DEFAULT 'BOPP',
   mark_window_mm   INTEGER NOT NULL DEFAULT 40  CHECK (mark_window_mm BETWEEN 10 AND 99),
@@ -61,6 +61,11 @@ CREATE TABLE IF NOT EXISTS production_records (
   c_0_7       INTEGER NOT NULL DEFAULT 0 CHECK (c_0_7  >= 0),
   c_8_15      INTEGER NOT NULL DEFAULT 0 CHECK (c_8_15 >= 0),
   c_16_25     INTEGER NOT NULL DEFAULT 0 CHECK (c_16_25 >= 0),
+  c_26_w      INTEGER NOT NULL DEFAULT 0 CHECK (c_26_w >= 0),
+  unscored    INTEGER NOT NULL DEFAULT 0 CHECK (unscored >= 0),
+  window_mm   INTEGER DEFAULT 40,
+  start_time  TEXT,
+  end_time    TEXT,
   total       INTEGER NOT NULL DEFAULT 0 CHECK (total >= 0)
 );
 CREATE INDEX IF NOT EXISTS ix_prod_time ON production_records(logged_at);
@@ -78,13 +83,13 @@ CREATE TABLE IF NOT EXISTS camera_verifications (
   result       TEXT NOT NULL CHECK (result IN ('MATCH','MISMATCH','NO_READ'))
 );
 
--- 6. STATION CALIBRATION (STN1 / STN2 key-value) ------------------------------
-CREATE TABLE IF NOT EXISTS station_calibration (
-  station    TEXT NOT NULL CHECK (station IN ('STN1','STN2')),
+-- 6. CALIBRATION STORE (STN1 / STN2 / CAMERA key-value store) ----------------
+CREATE TABLE IF NOT EXISTS calibration_store (
+  category   TEXT NOT NULL,
   key        TEXT NOT NULL,                            -- acErr, dcErr, brakeType, markSkipAlarm ...
   value      TEXT NOT NULL,
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now','localtime')),
-  PRIMARY KEY (station, key)
+  PRIMARY KEY (category, key)
 );
 
 -- 7. ACTIVE RECIPE (single row) ----------------------------------------------
@@ -106,7 +111,7 @@ BEGIN UPDATE recipe_images SET is_active = 0 WHERE recipe_id = NEW.recipe_id AND
 -- Report view, same columns as the HMI report table
 CREATE VIEW IF NOT EXISTS v_report AS
 SELECT logged_at AS "Date Time", image_name AS "Image / Name", operator AS "Operator",
-       c_0_7 AS "0-7", c_8_15 AS "8-15", c_16_25 AS "16-25", total AS "Total"
+       c_0_7 AS "0-7", c_8_15 AS "8-15", c_16_25 AS "16-25", c_26_w AS "26-w", unscored AS "Unscored", total AS "Total"
 FROM production_records ORDER BY logged_at DESC;
 
 -- ============================ PHASE 1 ADDITIONS ==============================

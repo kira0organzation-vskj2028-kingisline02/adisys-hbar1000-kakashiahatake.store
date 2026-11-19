@@ -15,7 +15,8 @@ module.exports = {
         PYTHONUNBUFFERED: "1",
         PORT: "11111",
         FBARX_SIM: "0",
-        FBARX_PORT: "socket://127.0.0.1:5020"
+        FBARX_PORT: "socket://127.0.0.1:5020",
+        HMI_AUTH: "admin:admin123"
       }
     },
     {

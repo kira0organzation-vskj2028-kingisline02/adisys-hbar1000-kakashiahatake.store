@@ -15,6 +15,8 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 if TESTS_DIR not in sys.path:
     sys.path.insert(0, TESTS_DIR)
+if "HMI_AUTH" not in os.environ:
+    os.environ["HMI_AUTH"] = "admin:admin123"
 
 CORE_TESTS = [
     "test_tension_and_security.py",
@@ -23,6 +25,7 @@ CORE_TESTS = [
     "test_turn12_requirements.py",
     "test_hmi_web.py",
     "test_bag_accuracy.py",
+    "test_audit_hardening.py",
 ]
 
 INTEGRATION_TESTS = [

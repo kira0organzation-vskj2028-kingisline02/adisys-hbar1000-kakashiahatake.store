@@ -10,6 +10,7 @@ ExecStart=/home/ubuntu/ricevision/venv/bin/python server.py --port 11111
 Restart=always
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1
+Environment="HMI_AUTH=admin:admin123"
 
 [Install]
 WantedBy=multi-user.target
